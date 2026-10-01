@@ -12,5 +12,18 @@
     "Physical USB configuration write",
     "Power-cycle persistence",
     "New firmware LCD and HID behaviour"
-  ]
+  ],
+  "games": {
+    "softwareChecksPass": true,
+    "gameCount": 3,
+    "compiledFor": "Waveshare RP2040 Zero / Arduino-Pico 5.5.0 / 125MHz / Pico SDK USB",
+    "gameUf2Blocks": 367,
+    "gameUf2Sha256": "8cb3e14d75a3c701ce499ce326f841f5db34f3ba5cb10e13a92d80cb48897aea",
+    "pinAssignmentsUnchanged": true,
+    "keymapFormatUnchanged": true,
+    "eepromSectorExcludedFromUf2": true,
+    "downloadSourcesMatch": true,
+    "hardwareVerified": false,
+    "serialClientChecksPass": true
+  }
 }

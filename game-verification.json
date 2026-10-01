@@ -1,0 +1,18 @@
+{
+  "gameLogicChecksPass": true,
+  "checks": 10,
+  "method": "Real C++ game logic compiled for Cortex-M0 and run in Unicorn; LCD rendering stubbed",
+  "covers": [
+    "menu previous/next wrap",
+    "jump failure",
+    "jump 20-obstacle win",
+    "catch movement bounds",
+    "catch failure",
+    "catch win",
+    "memory ignores input during demonstration",
+    "memory eight-stage win",
+    "memory wrong-input failure",
+    "all draw paths"
+  ],
+  "hardwareVerified": false
+}
