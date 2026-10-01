@@ -41,3 +41,7 @@ arduino-cli compile --fqbn rp2040:rp2040:waveshare_rp2040_zero:flash=2097152_0,f
 ```
 
 ゲームロジックのCortex-M0エミュレーター検証は`tests/README.md`を参照してください。LCD・USB・GPIOと実物の遊び心地は実機未検証です。
+
+### Play V2.1：液晶の色順を修正
+
+利用者の実機報告「赤と青が入れ替わる」に対応し、MINI160x80の初期化・回転3の後でMADCTLをMX | MV | BGRに設定します。回転・オフセット・RGB565描画データは変更しません。赤青の順序だけを変更し、通信仕様のCAPS PLAY2も維持します。修正後の実機表示確認は未完了です。

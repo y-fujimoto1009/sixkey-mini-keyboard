@@ -12,7 +12,9 @@ RP2040-Zero、6個のMX互換キースイッチ、押し込み付きEC11エン�
 
 ## 本体LCDで遊ぶミニゲーム
 
-[設定サイトのミニゲーム欄](https://y-fujimoto1009.github.io/sixkey-mini-keyboard/#games)から、[3ゲーム入りUF2](docs/sixkey-play-v2.uf2)をダウンロードできます。
+現行は**Play V2.1**です。実機報告の赤・青入れ替わりに対して、液晶の色順をBGRへ修正しました。修正後の実機確認は未完了です。
+
+[設定サイトのミニゲーム欄](https://y-fujimoto1009.github.io/sixkey-mini-keyboard/#games)から、[3ゲーム入りUF2](docs/sixkey-play-v2.1.uf2)をダウンロードできます。
 
 - **うさぎのぴょんぴょん散歩**：ジャンプで20個のきのこを飛び越えるアクション。
 - **ねこのおやつあつめ**：左右に動いていちごを20個集めるキャッチゲーム。

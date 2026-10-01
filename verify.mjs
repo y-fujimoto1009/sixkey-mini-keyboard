@@ -25,7 +25,7 @@ for(let i=0;i<=3000;i++)assert.equal(playValid(i),valid(i));
 assert.equal(playSource.match(/constexpr uint8_t KEY_PINS[^;]+;/)[0],source.match(/constexpr uint8_t KEY_PINS[^;]+;/)[0]);
 assert.equal(playSource.match(/constexpr uint8_t LCD_SCK[^;]+;/)[0],source.match(/constexpr uint8_t LCD_SCK[^;]+;/)[0]);
 assert.equal(playSource.match(/constexpr uint32_t MAGIC[^;]+;/)[0],source.match(/constexpr uint32_t MAGIC[^;]+;/)[0]);
-const playUf2=fs.readFileSync('docs/sixkey-play-v2.uf2');assert.equal(playUf2.length%512,0);
+const playUf2=fs.readFileSync('docs/sixkey-play-v2.1.uf2');assert.equal(playUf2.length%512,0);
 const addresses=new Set();
 for(let off=0;off<playUf2.length;off+=512){
 assert.equal(playUf2.readUInt32LE(off),0x0a324655);assert.equal(playUf2.readUInt32LE(off+4),0x9e5d5157);assert.equal(playUf2.readUInt32LE(off+508),0x0ab16f30);
@@ -35,4 +35,6 @@ const target=playUf2.readUInt32LE(off+12);assert(target>=0x10000000&&target+256<
 report.games={softwareChecksPass:true,gameCount:3,compiledFor:'Waveshare RP2040 Zero / Arduino-Pico 5.5.0 / 125MHz / Pico SDK USB',gameUf2Blocks:playUf2.length/512,gameUf2Sha256:crypto.createHash('sha256').update(playUf2).digest('hex'),pinAssignmentsUnchanged:true,keymapFormatUnchanged:true,eepromSectorExcludedFromUf2:true,downloadSourcesMatch:true,hardwareVerified:false};
 await import('./tests/serial_client.mjs');
 report.games.serialClientChecksPass=true;
+assert(playSource.includes('ST77XX_MADCTL_MX|ST77XX_MADCTL_MV|ST7735_MADCTL_BGR'));
+report.games.firmwareVersion='2.1';report.games.displayColorOrder='BGR';report.games.displayFixHardwareVerified=false;
 fs.writeFileSync('verification.json' ,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));

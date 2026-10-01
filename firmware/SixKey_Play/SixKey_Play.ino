@@ -31,7 +31,7 @@ bool validAction(uint16_t a){return a==0||a==32||(a>=48&&a<=57)||(a>=97&&a<=122)
 uint16_t checksum(const Config &c){uint16_t h=0x6b31;for(auto a:c.map)h=(h*31)^a;return h;}
 bool validConfig(const Config &c){if(c.magic!=MAGIC||c.checksum!=checksum(c))return false;for(auto a:c.map)if(!validAction(a))return false;return true;}
 void releaseHid(){Keyboard.releaseAll();Keyboard.consumerRelease();memset(sent,0,sizeof(sent));}
-void draw(){if(TinyGames::scene!=TinyGames::KEYS){drawGame();return;}tft.fillScreen(ST77XX_BLACK);tft.setTextSize(1);tft.setTextColor(ST77XX_WHITE);tft.setCursor(3,3);tft.print("6KEY PLAY V2");for(int i=0;i<6;i++){int x=(i%3)*53,y=18+(i<3?23:0);tft.fillRoundRect(x+1,y,50,20,3,buttons[i].down?ST77XX_GREEN:ST77XX_BLUE);tft.setCursor(x+4,y+6);tft.print(i+1);tft.print(':');tft.print(config.map[i]);}tft.setCursor(3,68);tft.print(armed?"K4+K6: MENU":"Release all keys");}
+void draw(){if(TinyGames::scene!=TinyGames::KEYS){drawGame();return;}tft.fillScreen(ST77XX_BLACK);tft.setTextSize(1);tft.setTextColor(ST77XX_WHITE);tft.setCursor(3,3);tft.print("6KEY PLAY V2.1");for(int i=0;i<6;i++){int x=(i%3)*53,y=18+(i<3?23:0);tft.fillRoundRect(x+1,y,50,20,3,buttons[i].down?ST77XX_GREEN:ST77XX_BLUE);tft.setCursor(x+4,y+6);tft.print(i+1);tft.print(':');tft.print(config.map[i]);}tft.setCursor(3,68);tft.print(armed?"K4+K6: MENU":"Release all keys");}
 void report(){Serial.print("K6/1 MAP ");for(int i=0;i<9;i++){if(i)Serial.print(',');Serial.print(config.map[i]);}Serial.println();}
 void command(){
   line[used]=0;
@@ -66,7 +66,11 @@ void setup(){
   pinMode(ENC_A,INPUT_PULLUP);pinMode(ENC_B,INPUT_PULLUP);encPrevious=(digitalRead(ENC_A)<<1)|digitalRead(ENC_B);
   EEPROM.begin(256);EEPROM.get(0,config);if(!validConfig(config)){config={};config.magic=MAGIC;memcpy(config.map,DEFAULTS,sizeof(DEFAULTS));config.checksum=checksum(config);}
   Serial.begin(115200);Keyboard.begin();releaseHid();
-  SPI.setSCK(LCD_SCK);SPI.setTX(LCD_MOSI);SPI.begin();tft.initR(INITR_MINI160x80);tft.setRotation(3);draw();digitalWrite(LCD_BLK,HIGH);
+  SPI.setSCK(LCD_SCK);SPI.setTX(LCD_MOSI);SPI.begin();tft.initR(INITR_MINI160x80);tft.setRotation(3);
+  // This panel expects BGR. Keep rotation 3 (MX|MV) and the existing offsets.
+  uint8_t madctl=ST77XX_MADCTL_MX|ST77XX_MADCTL_MV|ST7735_MADCTL_BGR;
+  tft.sendCommand(ST77XX_MADCTL,&madctl,1);
+  draw();digitalWrite(LCD_BLK,HIGH);
 }
 
 void drawGame(){if(TinyGames::scene==TinyGames::KEYS)return;TinyGames::draw(frame);tft.drawRGBBitmap(0,0,frame.getBuffer(),160,80);}
