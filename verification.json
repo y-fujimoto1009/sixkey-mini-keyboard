@@ -1,0 +1,16 @@
+{
+  "softwareChecksPass": true,
+  "actionCount": 75,
+  "jsonRoundTripAllActions": true,
+  "invalidFilesRejected": true,
+  "firmwareActionSetMatches": true,
+  "sourceDownloadMatchesCompiledSource": true,
+  "uf2Blocks": 343,
+  "uf2Sha256": "a81d4aa6f61ec6a888d04f7efcc80260e8ed5c77943550051e1212c4f72e694e",
+  "hardwareVerified": false,
+  "remaining": [
+    "Physical USB configuration write",
+    "Power-cycle persistence",
+    "New firmware LCD and HID behaviour"
+  ]
+}
