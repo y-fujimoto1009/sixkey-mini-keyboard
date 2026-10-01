@@ -7,6 +7,13 @@
 GFXcanvas16 frame(160,80);
 uint32_t gameFrameAt=0,menuHoldAt=0;
 bool menuChordLatched=false;
+constexpr TinyGames::Scene COLOR_TEST=static_cast<TinyGames::Scene>(5);
+constexpr int DISPLAY_CONFIG_OFFSET=64;
+struct DisplayConfig { uint32_t magic;uint8_t bgr,invert,check,reserved; };
+DisplayConfig displayConfig={0x434f4c32,1,1,0xa6,0};
+bool displaySaved=false;
+void applyDisplay();
+void drawColorTest();
 void setScene(TinyGames::Scene scene);
 void drawGame();
 
@@ -17,6 +24,7 @@ constexpr uint8_t ENC_A=10,ENC_B=11;
 constexpr uint16_t DEFAULTS[9]={49,50,51,52,53,54,2001,2002,2003};
 constexpr uint32_t MAGIC=0x364b0001;
 struct Config{uint32_t magic;uint16_t map[9];uint16_t checksum;};
+static_assert(sizeof(Config)<=DISPLAY_CONFIG_OFFSET,"Display settings must not overlap keymap");
 struct Button{bool raw,down;uint32_t changed;};
 Config config;
 Button buttons[7];
@@ -31,7 +39,7 @@ bool validAction(uint16_t a){return a==0||a==32||(a>=48&&a<=57)||(a>=97&&a<=122)
 uint16_t checksum(const Config &c){uint16_t h=0x6b31;for(auto a:c.map)h=(h*31)^a;return h;}
 bool validConfig(const Config &c){if(c.magic!=MAGIC||c.checksum!=checksum(c))return false;for(auto a:c.map)if(!validAction(a))return false;return true;}
 void releaseHid(){Keyboard.releaseAll();Keyboard.consumerRelease();memset(sent,0,sizeof(sent));}
-void draw(){if(TinyGames::scene!=TinyGames::KEYS){drawGame();return;}tft.fillScreen(ST77XX_BLACK);tft.setTextSize(1);tft.setTextColor(ST77XX_WHITE);tft.setCursor(3,3);tft.print("6KEY PLAY V2.1");for(int i=0;i<6;i++){int x=(i%3)*53,y=18+(i<3?23:0);tft.fillRoundRect(x+1,y,50,20,3,buttons[i].down?ST77XX_GREEN:ST77XX_BLUE);tft.setCursor(x+4,y+6);tft.print(i+1);tft.print(':');tft.print(config.map[i]);}tft.setCursor(3,68);tft.print(armed?"K4+K6: MENU":"Release all keys");}
+void draw(){if(TinyGames::scene!=TinyGames::KEYS){drawGame();return;}tft.fillScreen(ST77XX_BLACK);tft.setTextSize(1);tft.setTextColor(ST77XX_WHITE);tft.setCursor(3,3);tft.print("6KEY PLAY V2.2");for(int i=0;i<6;i++){int x=(i%3)*53,y=18+(i<3?23:0);tft.fillRoundRect(x+1,y,50,20,3,buttons[i].down?ST77XX_GREEN:ST77XX_BLUE);tft.setCursor(x+4,y+6);tft.print(i+1);tft.print(':');tft.print(config.map[i]);}tft.setCursor(3,68);tft.print(armed?"K4+K6: MENU":"Release all keys");}
 void report(){Serial.print("K6/1 MAP ");for(int i=0;i<9;i++){if(i)Serial.print(',');Serial.print(config.map[i]);}Serial.println();}
 void command(){
   line[used]=0;
@@ -65,15 +73,31 @@ void setup(){
   for(int i=0;i<7;i++){pinMode(KEY_PINS[i],INPUT_PULLUP);buttons[i]={digitalRead(KEY_PINS[i])==LOW,digitalRead(KEY_PINS[i])==LOW,millis()};}
   pinMode(ENC_A,INPUT_PULLUP);pinMode(ENC_B,INPUT_PULLUP);encPrevious=(digitalRead(ENC_A)<<1)|digitalRead(ENC_B);
   EEPROM.begin(256);EEPROM.get(0,config);if(!validConfig(config)){config={};config.magic=MAGIC;memcpy(config.map,DEFAULTS,sizeof(DEFAULTS));config.checksum=checksum(config);}
+  DisplayConfig stored={};EEPROM.get(DISPLAY_CONFIG_OFFSET,stored);
+  displaySaved=stored.magic==0x434f4c32&&stored.bgr<=1&&stored.invert<=1&&stored.check==(0xa5^stored.bgr^(stored.invert<<1));
+  if(displaySaved)displayConfig=stored;
   Serial.begin(115200);Keyboard.begin();releaseHid();
   SPI.setSCK(LCD_SCK);SPI.setTX(LCD_MOSI);SPI.begin();tft.initR(INITR_MINI160x80);tft.setRotation(3);
-  // This panel expects BGR. Keep rotation 3 (MX|MV) and the existing offsets.
-  uint8_t madctl=ST77XX_MADCTL_MX|ST77XX_MADCTL_MV|ST7735_MADCTL_BGR;
-  tft.sendCommand(ST77XX_MADCTL,&madctl,1);
+  applyDisplay();
+  if(!displaySaved)TinyGames::scene=COLOR_TEST;
   draw();digitalWrite(LCD_BLK,HIGH);
 }
 
-void drawGame(){if(TinyGames::scene==TinyGames::KEYS)return;TinyGames::draw(frame);tft.drawRGBBitmap(0,0,frame.getBuffer(),160,80);}
+void applyDisplay(){
+  uint8_t madctl=ST77XX_MADCTL_MX|ST77XX_MADCTL_MV|(displayConfig.bgr?ST7735_MADCTL_BGR:ST77XX_MADCTL_RGB);
+  tft.sendCommand(ST77XX_MADCTL,&madctl,1);tft.invertDisplay(displayConfig.invert!=0);
+}
+void drawColorTest(){
+  frame.fillScreen(ST77XX_BLACK);frame.setTextSize(1);frame.setTextColor(ST77XX_WHITE);frame.setCursor(3,2);frame.print("COLOR TEST V2.2");
+  frame.setCursor(3,13);frame.print(displayConfig.bgr?"BGR":"RGB");frame.print(displayConfig.invert?" INV:ON":" INV:OFF");frame.print(displaySaved?" SAVED":"");
+  const uint16_t colors[]={ST77XX_RED,ST77XX_GREEN,ST77XX_BLUE};const char *names[]={"RED","GREEN","BLUE"};
+  for(int i=0;i<3;i++){frame.fillRect(2+i*53,24,49,18,colors[i]);frame.setTextColor(i==1?ST77XX_BLACK:ST77XX_WHITE);frame.setCursor(6+i*53,29);frame.print(names[i]);}
+  frame.drawRect(2,45,75,12,ST77XX_WHITE);frame.setTextColor(ST77XX_WHITE);frame.setCursor(7,48);frame.print("BLACK");
+  frame.fillRect(82,45,75,12,ST77XX_WHITE);frame.setTextColor(ST77XX_BLACK);frame.setCursor(87,48);frame.print("WHITE");
+  frame.setTextColor(ST77XX_WHITE);frame.setCursor(3,60);frame.print("K1:RGB K2:INV");frame.setCursor(3,71);frame.print("K5:SAVE K6:BACK");
+  tft.drawRGBBitmap(0,0,frame.getBuffer(),160,80);
+}
+void drawGame(){if(TinyGames::scene==TinyGames::KEYS)return;if(TinyGames::scene==COLOR_TEST){drawColorTest();return;}TinyGames::draw(frame);tft.drawRGBBitmap(0,0,frame.getBuffer(),160,80);}
 void setScene(TinyGames::Scene scene){
   releaseHid();armed=false;releasedAt=0;quarters=0;menuHoldAt=0;
   TinyGames::start(scene,millis());gameFrameAt=millis();draw();
@@ -106,7 +130,20 @@ void loop(){
   }
   if(uint32_t(now-gameFrameAt)<25)return;
   gameFrameAt=now;bool held[7];for(int i=0;i<7;i++)held[i]=armed&&buttons[i].down;
-  if(armed&&pendingPress[5])setScene(TinyGames::scene==TinyGames::MENU?TinyGames::KEYS:TinyGames::MENU);
+  if(TinyGames::scene==COLOR_TEST){
+    if(armed&&pendingPress[5])setScene(TinyGames::MENU);
+    else if(armed&&pendingPress[0]){displayConfig.bgr^=1;displaySaved=false;applyDisplay();}
+    else if(armed&&pendingPress[1]){displayConfig.invert^=1;displaySaved=false;applyDisplay();}
+    else if(armed&&pendingPress[4]){
+      displayConfig.check=0xa5^displayConfig.bgr^(displayConfig.invert<<1);
+      EEPROM.put(DISPLAY_CONFIG_OFFSET,displayConfig);bool committed=EEPROM.commit();
+      EEPROM.begin(256);DisplayConfig checked={};EEPROM.get(DISPLAY_CONFIG_OFFSET,checked);
+      displaySaved=committed&&memcmp(&checked,&displayConfig,sizeof(checked))==0;
+    }
+    memset(pendingPress,0,sizeof(pendingPress));drawGame();return;
+  }
+  if(armed&&pendingPress[3]&&TinyGames::scene==TinyGames::MENU)setScene(COLOR_TEST);
+  else if(armed&&pendingPress[5])setScene(TinyGames::scene==TinyGames::MENU?TinyGames::KEYS:TinyGames::MENU);
   else if(armed&&pendingPress[1]&&TinyGames::scene==TinyGames::MENU)setScene(static_cast<TinyGames::Scene>(TinyGames::selected==3?TinyGames::KEYS:TinyGames::selected+1));
   else if(armed&&pendingPress[1]&&TinyGames::ended)setScene(TinyGames::scene);
   else if(armed)TinyGames::step(held,pendingPress,0,now);

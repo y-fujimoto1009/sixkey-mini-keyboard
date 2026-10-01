@@ -17,16 +17,16 @@
     "softwareChecksPass": true,
     "gameCount": 3,
     "compiledFor": "Waveshare RP2040 Zero / Arduino-Pico 5.5.0 / 125MHz / Pico SDK USB",
-    "gameUf2Blocks": 367,
-    "gameUf2Sha256": "820e24006b2e0d94425c6c42bd1a57c66882e91553b2971246ef31e5c7545962",
+    "gameUf2Blocks": 371,
+    "gameUf2Sha256": "2118f41bc8dff4b27c843a384c941094210d912653f1cf0952f1dc8fd27a02a0",
     "pinAssignmentsUnchanged": true,
     "keymapFormatUnchanged": true,
     "eepromSectorExcludedFromUf2": true,
     "downloadSourcesMatch": true,
     "hardwareVerified": false,
     "serialClientChecksPass": true,
-    "firmwareVersion": "2.1",
-    "displayColorOrder": "BGR",
+    "firmwareVersion": "2.2",
+    "displayColorOrder": "Selectable RGB/BGR + inversion",
     "displayFixHardwareVerified": false
   }
 }

@@ -83,7 +83,7 @@ void draw(Adafruit_GFX &p){
   const char *names[]={"BUNNY HOP","SNACK CATCH","FLOWER MEMORY","KEYBOARD"};
   p.fillRoundRect(4,30,152,29,8,selected==0?PINK:selected==1?MINT:selected==2?SKY:0xe71c);
   if(selected==0)bunny(p,12,35);else if(selected==1)cat(p,12,38);else if(selected==2)flower(p,21,44,PINK,false);
-  text(p,selected==3?12:42,42,names[selected]);text(p,5,68,"K6: keyboard");return;
+  text(p,selected==3?12:42,42,names[selected]);text(p,5,68,"K4:color K6:keys");return;
  }
  p.fillRect(0,0,160,13,0xffff);text(p,3,3,scene==JUMP?"HOP":scene==CATCH?"CATCH":"MEMORY");
  p.setCursor(55,3);p.print(scene==MEMORY?roundSize:score);p.print(scene==MEMORY?"/8":"/20");
