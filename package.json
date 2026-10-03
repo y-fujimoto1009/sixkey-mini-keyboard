@@ -2,6 +2,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node verify.mjs"
+    "test": "node verify.mjs && node verify-shortcuts.mjs && node verify-shortcuts.mjs firmware/SixKey_Play/SixKey_Play.ino"
   }
 }

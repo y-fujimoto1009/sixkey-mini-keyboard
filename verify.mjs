@@ -12,7 +12,7 @@ const expression=source.match(/bool validAction\(uint16_t a\)\{return (.*?);\}/)
 const valid=new Function('a','return '+expression);
 for(let i=0;i<=3000;i++)assert.equal(valid(i),actions.some(a=>a.id===i),'action '+i);
 assert.equal(source,fs.readFileSync('docs/SixKey_Config.ino','utf8'));
-const uf2=fs.readFileSync('docs/sixkey-config-v1.uf2');assert.equal(uf2.length%512,0);
+const uf2=fs.readFileSync('docs/sixkey-config-v1.1.uf2');assert.equal(uf2.length%512,0);
 for(let off=0;off<uf2.length;off+=512){assert.equal(uf2.readUInt32LE(off),0x0a324655);assert.equal(uf2.readUInt32LE(off+4),0x9e5d5157);assert.equal(uf2.readUInt32LE(off+508),0x0ab16f30);assert.equal(uf2.readUInt32LE(off+20),off/512);assert.equal(uf2.readUInt32LE(off+24),uf2.length/512);assert.equal(uf2.readUInt32LE(off+28),0xe48bff56);assert.equal(uf2.readUInt32LE(off+16),256);}
 const html=fs.readFileSync('docs/index.html','utf8');
 for(const m of html.matchAll(/(?:href|src)="([^"]+)"/g)){if(!/^(?:data:|https?:|#)/.test(m[1]))assert(fs.existsSync('docs/'+m[1]),m[1]);}
@@ -25,7 +25,7 @@ for(let i=0;i<=3000;i++)assert.equal(playValid(i),valid(i));
 assert.equal(playSource.match(/constexpr uint8_t KEY_PINS[^;]+;/)[0],source.match(/constexpr uint8_t KEY_PINS[^;]+;/)[0]);
 assert.equal(playSource.match(/constexpr uint8_t LCD_SCK[^;]+;/)[0],source.match(/constexpr uint8_t LCD_SCK[^;]+;/)[0]);
 assert.equal(playSource.match(/constexpr uint32_t MAGIC[^;]+;/)[0],source.match(/constexpr uint32_t MAGIC[^;]+;/)[0]);
-const playUf2=fs.readFileSync('docs/sixkey-play-v2.2.uf2');assert.equal(playUf2.length%512,0);
+const playUf2=fs.readFileSync('docs/sixkey-play-v2.3.uf2');assert.equal(playUf2.length%512,0);
 const addresses=new Set();
 for(let off=0;off<playUf2.length;off+=512){
 assert.equal(playUf2.readUInt32LE(off),0x0a324655);assert.equal(playUf2.readUInt32LE(off+4),0x9e5d5157);assert.equal(playUf2.readUInt32LE(off+508),0x0ab16f30);
@@ -37,5 +37,5 @@ await import('./tests/serial_client.mjs');
 report.games.serialClientChecksPass=true;
 assert(playSource.includes('tft.invertDisplay(displayConfig.invert!=0)'));
 assert(playSource.includes('DISPLAY_CONFIG_OFFSET=64'));
-report.games.firmwareVersion='2.2';report.games.displayColorOrder='Selectable RGB/BGR + inversion';report.games.displayFixHardwareVerified=false;
+report.games.firmwareVersion='2.3';report.games.displayColorOrder='Selectable RGB/BGR + inversion';report.games.displayFixHardwareVerified=false;
 fs.writeFileSync('verification.json' ,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));

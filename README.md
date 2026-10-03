@@ -12,9 +12,9 @@ RP2040-Zero、6個のMX互換キースイッチ、押し込み付きEC11エン�
 
 ## 本体LCDで遊ぶミニゲーム
 
-現行は**Play V2.2**です。本体の色確認画面でRGB/BGRと反転設定を切り替え、実物に合う設定を保存できます。実機での表示・保存確認は未完了です。
+現行は**Play V2.3**です。Ctrlと文字を同時に送るショートカット修正を含みます。本体の色確認画面でRGB/BGRと反転設定を切り替え、実物に合う設定を保存できます。実機での表示・保存確認は未完了です。
 
-[設定サイトのミニゲーム欄](https://y-fujimoto1009.github.io/sixkey-mini-keyboard/#games)から、[3ゲーム入りUF2](docs/sixkey-play-v2.2.uf2)をダウンロードできます。
+[設定サイトのミニゲーム欄](https://y-fujimoto1009.github.io/sixkey-mini-keyboard/#games)から、[3ゲーム入りUF2](docs/sixkey-play-v2.3.uf2)をダウンロードできます。
 
 - **うさぎのぴょんぴょん散歩**：ジャンプで20個のきのこを飛び越えるアクション。
 - **ねこのおやつあつめ**：左右に動いていちごを20個集めるキャッチゲーム。
@@ -35,7 +35,7 @@ BOOT接続してRPI-RP2にUF2をコピーすると、3つまとめて本体に�
 | 部品付き基板の3Dモデル（mm） | [STL](models/keyboard-assembly-mm.stl) / [STEP](models/keyboard-assembly.step) |
 | 基板だけの3Dモデル（mm） | [STL](models/pcb-only-mm.stl) |
 | 個別部品を含む3Dモデル一式 | [3Dモデル ZIP](models/sixkey-3d-models.zip) |
-| 設定サイト用ファームウェア | [UF2](docs/sixkey-config-v1.uf2) / [ソース](firmware/SixKey_Config/SixKey_Config.ino) |
+| 設定サイト用ファームウェア | [UF2](docs/sixkey-config-v1.1.uf2) / [ソース](firmware/SixKey_Config/SixKey_Config.ino) |
 
 ガーバーの版と確認範囲は[基板の説明](hardware/README.md)、Tinkercadへの取り込み方法と仮寸法は[3Dモデルの説明](models/README.md)を参照してください。
 
