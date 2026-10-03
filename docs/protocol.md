@@ -49,3 +49,9 @@ arduino-cli compile --fqbn rp2040:rp2040:waveshare_rp2040_zero:flash=2097152_0,f
 ### Play V2.2：色の確認と保存
 
 初回（表示設定なし）は色確認画面。K1でRGB/BGR、K2でINVON/INVOFFを切り替え、K5でEEPROMの64番地に表示設定を保存して物理フラッシュを読み戻します。保存成功はSAVED表示。キー設定と保存領域は重なりません。K6でメニューへ。保存後の起動はメニューになり、メニューK4で再調整できます。正しい色順と反転設定は実機のテストパターンで判断するもので、こちらでは未確定です。
+
+## Config V1.2 / Play V2.4：Mac・Alt
+
+1001〜1006は従来どおりCtrl+C/V/X/Z/S/A。1101〜1106はCommand+C/V/X/Z/S/A（左GUI修飾、HIDマスク0x08）。1201・1202はAlt+A・Alt+V（左Alt修飾、0x04）。MacではAltはOptionとして動作し、結果はアプリ・入力言語に依存します。既存設定をOSに応じて自動変換しません。
+
+設定ファイルversionと通信K6/1は維持。新しい操作IDを保存する前に本体も更新してください。旧ファームは新IDを拒否します。MacのUSB設定にはWeb Serial対応のChrome / Edgeを使用します。Mac実機でのHID・保存・再起動は未検証です。

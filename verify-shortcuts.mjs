@@ -20,11 +20,11 @@ function translate(name){
   const body=source.match(new RegExp(`void ${name}\\([^\\n]*?\\)\\{([^\\n]*)\\}`))?.[1];
   assert(body,`missing ${name}`);
   return body.replace(/bool desired\[256\]=\{\}/g,'let desired=Array(256).fill(false)')
-    .replace(/const char keys\[\]/g,'const keys').replace(/\(uint8_t\)keys\[a-1001\]/g,'keys.charCodeAt(a-1001)')
+    .replace(/const char keys\[\]/g,'const keys').replace(/\(uint8_t\)keys\[([^\]]+)\]/g,'keys.charCodeAt($1)')
     .replace(/\bint i=/g,'let i=')
     .replace(/memcpy\(sent,desired,sizeof\(sent\)\)/g,'desired.forEach((v,i)=>sent[i]=v)');
 }
-const ctx=vm.createContext({Keyboard:transport,chordKeyboard:transport,KEY_LEFT_CTRL:128,
+const ctx=vm.createContext({Keyboard:transport,chordKeyboard:transport,KEY_LEFT_CTRL:128,KEY_LEFT_ALT:130,KEY_LEFT_GUI:131,
   sent:Array(256).fill(false),buttons:Array.from({length:7},()=>({down:false})),
   config:{map:[...defaults]},delay(){},mediaTap(){}});
 vm.runInContext(`function addAction(desired,a){${translate('addAction')}}
@@ -33,16 +33,17 @@ function tap(a){${translate('tap')}}`,ctx);
 const run=s=>vm.runInContext(s,ctx);
 function reset(){transport.held.clear();transport.reports=[];transport.dirty=false;transport.ready=true;ctx.sent.fill(false);ctx.buttons.forEach(b=>b.down=false);ctx.config.map=[...defaults];}
 const letters='cvxzsa';
-for(let i=0;i<6;i++){
-  const action=1001+i,k=letters.charCodeAt(i);
+const shortcuts=[...[...letters].map((c,i)=>[1001+i,c,128]),...[...letters].map((c,i)=>[1101+i,c,131]),[1201,'a',130],[1202,'v',130]];
+for(const [action,letter,modifier] of shortcuts){
+  const k=letter.charCodeAt(0);
   const map=defaults.map(()=>action);
   assert.deepEqual(decode(encode(map)),map);
   assert.deepEqual(parseReply('K6/1 MAP '+map.join(',')),map);
   reset();ctx.config.map[0]=action;ctx.buttons[0].down=true;run('syncHeld()');
-  assert.deepEqual(transport.reports,[[k,128]],`shortcut ${action} must not emit a bare letter`);
+  assert.deepEqual(transport.reports,[[k,modifier]],`shortcut ${action} must not emit a bare letter`);
   run('syncHeld()');assert.equal(transport.reports.length,1,'no repeat reports for unchanged held keys');
   ctx.buttons[0].down=false;run('syncHeld()');assert.deepEqual(transport.reports.at(-1),[]);
-  reset();run(`tap(${action})`);assert.deepEqual(transport.reports,[[k,128],[]]);
+  reset();run(`tap(${action})`);assert.deepEqual(transport.reports,[[k,modifier],[]]);
 }
 reset();ctx.config.map[0]=1001;ctx.config.map[1]=1006;ctx.buttons[0].down=ctx.buttons[1].down=true;run('syncHeld()');
 assert.deepEqual(transport.reports,[[97,99,128]]);
@@ -56,4 +57,4 @@ reset();transport.ready=false;ctx.config.map[0]=1001;ctx.buttons[0].down=true;ru
 transport.ready=true;run('syncHeld()');assert.deepEqual(transport.reports,[[99,128]],'busy endpoint retries full chord');
 ctx.buttons[0].down=false;transport.ready=false;run('syncHeld()');transport.ready=true;run('syncHeld()');assert.deepEqual(transport.reports.at(-1),[]);
 assert.match(source,/tud_hid_keyboard_report\(USB.findHIDReportID\(_id\),pendingReport.modifiers,pendingReport.keys\)\)pendingReportDirty=false/);
-console.log('PASS: six shortcuts, JSON/serial round trips, held/released keys, shared Ctrl, encoder, plain C, modeled USB retry. Physical device untested.');
+console.log('PASS: fourteen Ctrl/Command/Alt shortcuts, JSON/serial round trips, held/released keys, shared Ctrl, encoder, plain C, modeled USB retry. Physical device untested.');

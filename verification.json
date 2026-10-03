@@ -1,12 +1,12 @@
 {
   "softwareChecksPass": true,
-  "actionCount": 75,
+  "actionCount": 83,
   "jsonRoundTripAllActions": true,
   "invalidFilesRejected": true,
   "firmwareActionSetMatches": true,
   "sourceDownloadMatchesCompiledSource": true,
   "uf2Blocks": 346,
-  "uf2Sha256": "0951c8ec3f1fb626e644dadbbb6d74818a472ed019717621be3562e22acfe5d3",
+  "uf2Sha256": "e4e8315a45c4916014453a0eaa2552b63ca97b3a55e837ce3fe8c6a7ebf52538",
   "hardwareVerified": false,
   "remaining": [
     "Physical USB configuration write",
@@ -17,15 +17,15 @@
     "softwareChecksPass": true,
     "gameCount": 3,
     "compiledFor": "Waveshare RP2040 Zero / Arduino-Pico 5.5.0 / 125MHz / Pico SDK USB",
-    "gameUf2Blocks": 373,
-    "gameUf2Sha256": "046df7f0a744b4cbb2385a816ead18ef1c511bf576863603b063b6658f25e6f6",
+    "gameUf2Blocks": 374,
+    "gameUf2Sha256": "920a05bd8df6a591d87581a5d713a58383d43b94af19c45f12a54af13a99e214",
     "pinAssignmentsUnchanged": true,
     "keymapFormatUnchanged": true,
     "eepromSectorExcludedFromUf2": true,
     "downloadSourcesMatch": true,
     "hardwareVerified": false,
     "serialClientChecksPass": true,
-    "firmwareVersion": "2.3",
+    "firmwareVersion": "2.4",
     "displayColorOrder": "Selectable RGB/BGR + inversion",
     "displayFixHardwareVerified": false
   }

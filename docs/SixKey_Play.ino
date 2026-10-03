@@ -68,11 +68,11 @@ int8_t quarters=0;
 char line[120];size_t used=0;bool overflow=false;
 Adafruit_ST7735 tft(&SPI,LCD_CS,LCD_DC,LCD_RST);
 
-bool validAction(uint16_t a){return a==0||a==32||(a>=48&&a<=57)||(a>=97&&a<=122)||(a>=128&&a<=131)||(a>=176&&a<=179)||(a>=194&&a<=205)||(a>=212&&a<=212)||(a>=215&&a<=218)||(a>=1001&&a<=1006)||(a>=2001&&a<=2006);}
+bool validAction(uint16_t a){return a==0||a==32||(a>=48&&a<=57)||(a>=97&&a<=122)||(a>=128&&a<=131)||(a>=176&&a<=179)||(a>=194&&a<=205)||(a>=212&&a<=212)||(a>=215&&a<=218)||(a>=1001&&a<=1006)||(a>=1101&&a<=1106)||(a>=1201&&a<=1202)||(a>=2001&&a<=2006);}
 uint16_t checksum(const Config &c){uint16_t h=0x6b31;for(auto a:c.map)h=(h*31)^a;return h;}
 bool validConfig(const Config &c){if(c.magic!=MAGIC||c.checksum!=checksum(c))return false;for(auto a:c.map)if(!validAction(a))return false;return true;}
 void releaseHid(){chordKeyboard.releaseAll();chordKeyboard.waitReport();chordKeyboard.consumerRelease();memset(sent,0,sizeof(sent));}
-void draw(){if(TinyGames::scene!=TinyGames::KEYS){drawGame();return;}tft.fillScreen(ST77XX_BLACK);tft.setTextSize(1);tft.setTextColor(ST77XX_WHITE);tft.setCursor(3,3);tft.print("6KEY PLAY V2.3");for(int i=0;i<6;i++){int x=(i%3)*53,y=18+(i<3?23:0);tft.fillRoundRect(x+1,y,50,20,3,buttons[i].down?ST77XX_GREEN:ST77XX_BLUE);tft.setCursor(x+4,y+6);tft.print(i+1);tft.print(':');tft.print(config.map[i]);}tft.setCursor(3,68);tft.print(armed?"K4+K6: MENU":"Release all keys");}
+void draw(){if(TinyGames::scene!=TinyGames::KEYS){drawGame();return;}tft.fillScreen(ST77XX_BLACK);tft.setTextSize(1);tft.setTextColor(ST77XX_WHITE);tft.setCursor(3,3);tft.print("6KEY PLAY V2.4");for(int i=0;i<6;i++){int x=(i%3)*53,y=18+(i<3?23:0);tft.fillRoundRect(x+1,y,50,20,3,buttons[i].down?ST77XX_GREEN:ST77XX_BLUE);tft.setCursor(x+4,y+6);tft.print(i+1);tft.print(':');tft.print(config.map[i]);}tft.setCursor(3,68);tft.print(armed?"K4+K6: MENU":"Release all keys");}
 void report(){Serial.print("K6/1 MAP ");for(int i=0;i<9;i++){if(i)Serial.print(',');Serial.print(config.map[i]);}Serial.println();}
 void command(){
   line[used]=0;
@@ -97,7 +97,7 @@ void command(){
   config=saved;setScene(TinyGames::KEYS);draw();report();
 }
 void serialPoll(){int budget=128;while(Serial.available()&&budget--){char c=Serial.read();if(c=='\r')continue;if(c=='\n'){if(overflow)Serial.println("K6/1 ERR LENGTH");else command();used=0;overflow=false;}else if(used<sizeof(line)-1&&!overflow)line[used++]=c;else overflow=true;}}
-void addAction(bool *desired,uint16_t a){if(a>0&&a<256)desired[a]=true;else if(a>=1001&&a<=1006){const char keys[]="cvxzsa";desired[KEY_LEFT_CTRL]=true;desired[(uint8_t)keys[a-1001]]=true;}}
+void addAction(bool *desired,uint16_t a){if(a>0&&a<256)desired[a]=true;else if(a>=1001&&a<=1006){const char keys[]="cvxzsa";desired[KEY_LEFT_CTRL]=true;desired[(uint8_t)keys[a-1001]]=true;}else if(a>=1101&&a<=1106){const char keys[]="cvxzsa";desired[KEY_LEFT_GUI]=true;desired[(uint8_t)keys[a-1101]]=true;}else if(a>=1201&&a<=1202){const char keys[]="av";desired[KEY_LEFT_ALT]=true;desired[(uint8_t)keys[a-1201]]=true;}}
 void mediaTap(uint16_t a){if(a<2001||a>2006)return;const uint16_t codes[]={0xe9,0xea,0xe2,0xcd,0xb5,0xb6};chordKeyboard.consumerPress(codes[a-2001]);delay(12);chordKeyboard.consumerRelease();}
 void syncHeld(){bool desired[256]={};for(int i=0;i<7;i++)if(buttons[i].down)addAction(desired,config.map[i==6?8:i]);for(int i=1;i<256;i++)if(sent[i]&&!desired[i])chordKeyboard.release(i);for(int i=1;i<256;i++)if(!sent[i]&&desired[i])chordKeyboard.press(i);memcpy(sent,desired,sizeof(sent));chordKeyboard.flushReport();}
 void tap(uint16_t a){if(a>=2001){mediaTap(a);return;}bool desired[256]={};addAction(desired,a);for(int i=1;i<256;i++)if(desired[i]&&!sent[i])chordKeyboard.press(i);if(chordKeyboard.waitReport())delay(12);for(int i=1;i<256;i++)if(desired[i]&&!sent[i])chordKeyboard.release(i);chordKeyboard.waitReport();}
@@ -121,7 +121,7 @@ void applyDisplay(){
   tft.sendCommand(ST77XX_MADCTL,&madctl,1);tft.invertDisplay(displayConfig.invert!=0);
 }
 void drawColorTest(){
-  frame.fillScreen(ST77XX_BLACK);frame.setTextSize(1);frame.setTextColor(ST77XX_WHITE);frame.setCursor(3,2);frame.print("COLOR TEST V2.3");
+  frame.fillScreen(ST77XX_BLACK);frame.setTextSize(1);frame.setTextColor(ST77XX_WHITE);frame.setCursor(3,2);frame.print("COLOR TEST V2.4");
   frame.setCursor(3,13);frame.print(displayConfig.bgr?"BGR":"RGB");frame.print(displayConfig.invert?" INV:ON":" INV:OFF");frame.print(displaySaved?" SAVED":"");
   const uint16_t colors[]={ST77XX_RED,ST77XX_GREEN,ST77XX_BLUE};const char *names[]={"RED","GREEN","BLUE"};
   for(int i=0;i<3;i++){frame.fillRect(2+i*53,24,49,18,colors[i]);frame.setTextColor(i==1?ST77XX_BLACK:ST77XX_WHITE);frame.setCursor(6+i*53,29);frame.print(names[i]);}
